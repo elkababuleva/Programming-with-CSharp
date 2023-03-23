@@ -1,0 +1,97 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+namespace P03.LegendaryFarming
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Dictionary<string, int> keyMaterials = new Dictionary<string, int>()
+            {
+                { "shards", 0 },
+                { "motes", 0 },
+                { "fragments", 0 },
+            };
+
+            Dictionary<string, int> junk = new Dictionary<string, int>();
+            string obtained = string.Empty;
+
+            while (String.IsNullOrEmpty(obtained))
+            {
+                string materialsLine = Console.ReadLine().ToLower();
+                string[] materialsArr = materialsLine
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .ToArray();
+
+                ProcessInput(keyMaterials, junk, materialsArr, ref obtained);
+            }
+
+            Output(keyMaterials, junk, obtained);
+        }
+
+        static void ProcessInput(Dictionary<string, int> keyMaterials, Dictionary<string, int> junk, 
+            string[] materialsArr, ref string obtained)
+        {
+            const int minQty = 250;
+            Dictionary<string, string> craftingTable = new Dictionary<string, string>()
+            {
+                { "shards", "Shadowmourne" },
+                { "fragments", "Valanyr" },
+                { "motes", "Dragonwrath" }
+            };
+
+            for (int i = 0; i < materialsArr.Length; i += 2)
+            {
+                int quantity = int.Parse(materialsArr[i]);
+                string currMaterial = materialsArr[i + 1];
+
+                if (keyMaterials.ContainsKey(currMaterial))
+                {
+                    keyMaterials[currMaterial] += quantity;
+
+                    if (keyMaterials[currMaterial] >= minQty)
+                    {
+                        obtained = craftingTable[currMaterial];
+                        keyMaterials[currMaterial] -= minQty;
+
+                        break;
+                    }
+                }
+                else
+                {
+                    if (!junk.ContainsKey(currMaterial))
+                    {
+                        junk[currMaterial] = 0;
+                    }
+
+                    junk[currMaterial] += quantity;
+                }
+            }
+        }
+
+        static void Output(Dictionary<string, int> keyMaterialsLeft, Dictionary<string, int> junk,
+            string obtained)
+        {
+            Console.WriteLine($"{obtained} obtained!");
+
+            foreach (var kvp in keyMaterialsLeft)
+            {
+                string keyMaterial = kvp.Key;
+                int qtyLeft = kvp.Value;
+
+                Console.WriteLine($"{keyMaterial}: {qtyLeft}");
+            }
+
+            foreach (var kvp in junk)
+            {
+                string junkMaterial = kvp.Key;
+                int junkQty = kvp.Value;
+
+                Console.WriteLine($"{junkMaterial}: {junkQty}");
+            }
+        }
+
+    }
+}
